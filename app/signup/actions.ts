@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { env } from "@/lib/env";
+import { syncUser } from "@/lib/auth/sync-user";
 
 const signupSchema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -49,9 +50,17 @@ export async function signUpWithPassword(
     return { error: error.message, needsConfirmation: false };
   }
 
-  // TODO(phase-2): upsert User row keyed by supabaseId in the local DB once
-  // Prisma is wired up. For now Supabase auth.users holds the record.
+  // If email confirmation is disabled, Supabase returns a user + session
+  // immediately and we upsert the local row now. If confirmation IS required,
+  // data.session is null and the upsert happens at /auth/callback when the
+  // user clicks the confirmation link.
+  if (data.session && data.user) {
+    try {
+      await syncUser(data.user);
+    } catch (syncError) {
+      console.error("syncUser failed in signup action", syncError);
+    }
+  }
 
-  // If email confirmation is required, Supabase returns no session.
   return { error: null, needsConfirmation: !data.session };
 }

@@ -1,0 +1,103 @@
+// Prisma schema for the AI Subtitle Generator.
+// Source of truth for the application database (Supabase Postgres).
+// Run: `npx prisma migrate dev --name <change>` after editing.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum Plan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  PAST_DUE
+  TRIALING
+}
+
+enum UploadStatus {
+  PENDING
+  PROCESSING
+  COMPLETE
+  FAILED
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+
+model User {
+  id                   String   @id @default(cuid())
+  // Links to Supabase auth.users.id. Source of truth for identity lives in
+  // Supabase; everything in this DB is keyed by supabaseId.
+  supabaseId           String   @unique
+  email                String   @unique
+  name                 String?
+  plan                 Plan     @default(FREE)
+  stripeCustomerId     String?  @unique
+  stripeSubscriptionId String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  subscriptions Subscription[]
+  uploads       Upload[]
+  usage         Usage?
+
+  @@map("users")
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  userId               String
+  stripeSubscriptionId String             @unique
+  stripePriceId        String
+  status               SubscriptionStatus
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  cancelAtPeriodEnd    Boolean            @default(false)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("subscriptions")
+}
+
+model Upload {
+  id              String       @id @default(cuid())
+  userId          String
+  fileName        String
+  fileSize        Int
+  durationSeconds Int?
+  status          UploadStatus @default(PENDING)
+  createdAt       DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("uploads")
+}
+
+model Usage {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  uploadsThisMonth Int      @default(0)
+  minutesThisMonth Int      @default(0)
+  resetAt          DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("usage")
+}
