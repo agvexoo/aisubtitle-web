@@ -16,6 +16,22 @@ const envSchema = z.object({
       /^postgres(ql)?:\/\/.+/,
       "DATABASE_URL must be a postgres:// or postgresql:// connection string",
     ),
+  // Stripe restricted or secret key. Test mode starts with rk_test_ / sk_test_,
+  // live starts with rk_live_ / sk_live_.
+  STRIPE_SECRET_KEY: z
+    .string()
+    .regex(
+      /^(rk|sk)_(test|live)_/,
+      "STRIPE_SECRET_KEY must start with rk_test_, rk_live_, sk_test_, or sk_live_",
+    ),
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z
+    .string()
+    .regex(
+      /^pk_(test|live)_/,
+      "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY must start with pk_test_ or pk_live_",
+    ),
+  // Webhook secret is validated inside the webhook route, not here — it's
+  // only generated when `stripe listen` runs and is dev-only optional.
 });
 
 const parsed = envSchema.safeParse({
@@ -24,6 +40,9 @@ const parsed = envSchema.safeParse({
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
   DATABASE_URL: process.env.DATABASE_URL,
+  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
+    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
 });
 
 if (!parsed.success) {
