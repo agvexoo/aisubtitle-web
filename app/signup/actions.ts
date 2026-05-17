@@ -14,10 +14,8 @@ export type SignupState = {
   needsConfirmation: boolean;
 };
 
-export const initialSignupState: SignupState = {
-  error: null,
-  needsConfirmation: false,
-};
+// NOTE: do NOT export non-async values from a "use server" file — Next
+// only allows async function exports. Initial state lives in the form.
 
 export async function signUpWithPassword(
   _prev: SignupState,

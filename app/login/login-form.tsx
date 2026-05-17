@@ -2,7 +2,6 @@
 
 import { useActionState } from "react";
 import {
-  initialLoginState,
   signInWithGoogle,
   signInWithPassword,
   type LoginState,
@@ -12,6 +11,8 @@ interface LoginFormProps {
   next?: string;
   initialError?: string;
 }
+
+const EMPTY_STATE: LoginState = { error: null };
 
 export function LoginForm({ next, initialError }: LoginFormProps) {
   const startingState: LoginState = { error: initialError ?? null };
@@ -24,7 +25,7 @@ export function LoginForm({ next, initialError }: LoginFormProps) {
   const [googleState, googleAction, googlePending] = useActionState<
     LoginState,
     FormData
-  >(signInWithGoogle, initialLoginState);
+  >(signInWithGoogle, EMPTY_STATE);
 
   const isPending = emailPending || googlePending;
   const error = emailState.error ?? googleState.error;

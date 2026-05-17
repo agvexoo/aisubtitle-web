@@ -12,7 +12,8 @@ const credentialsSchema = z.object({
 
 export type LoginState = { error: string | null };
 
-export const initialLoginState: LoginState = { error: null };
+// NOTE: do NOT export non-async values from a "use server" file — Next
+// only allows async function exports. Initial state lives in the form.
 
 export async function signInWithPassword(
   _prev: LoginState,

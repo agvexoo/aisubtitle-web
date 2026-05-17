@@ -1,16 +1,17 @@
 "use client";
 
 import { useActionState } from "react";
-import {
-  initialSignupState,
-  signUpWithPassword,
-  type SignupState,
-} from "./actions";
+import { signUpWithPassword, type SignupState } from "./actions";
+
+const INITIAL_STATE: SignupState = {
+  error: null,
+  needsConfirmation: false,
+};
 
 export function SignupForm() {
   const [state, action, isPending] = useActionState<SignupState, FormData>(
     signUpWithPassword,
-    initialSignupState,
+    INITIAL_STATE,
   );
 
   if (state.needsConfirmation) {
