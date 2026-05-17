@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-17T14:33:00Z",
+  "title": "Design System: AI Subtitle Generator",
+  "extensions": {
+    "colorMeta": {
+      "proofmark-red": {
+        "role": "primary",
+        "displayName": "Proofmark Red",
+        "canonical": "#d32f2f",
+        "tonalRamp": [
+          "oklch(22% 0.08 27)",
+          "oklch(34% 0.12 27)",
+          "oklch(46% 0.16 27)",
+          "oklch(56% 0.19 27)",
+          "oklch(66% 0.15 27)",
+          "oklch(76% 0.10 27)",
+          "oklch(86% 0.06 27)",
+          "oklch(95% 0.025 27)"
+        ]
+      },
+      "proofmark-red-deep": {
+        "role": "primary",
+        "displayName": "Proofmark Deep Red",
+        "canonical": "#b71c1c",
+        "tonalRamp": [
+          "oklch(18% 0.08 27)",
+          "oklch(30% 0.12 27)",
+          "oklch(42% 0.15 27)",
+          "oklch(52% 0.17 27)",
+          "oklch(64% 0.13 27)",
+          "oklch(76% 0.09 27)",
+          "oklch(87% 0.05 27)",
+          "oklch(95% 0.02 27)"
+        ]
+      },
+      "proofmark-red-soft": {
+        "role": "primary",
+        "displayName": "Proofmark Soft Red",
+        "canonical": "#ffcdd2",
+        "tonalRamp": [
+          "oklch(28% 0.05 20)",
+          "oklch(40% 0.07 20)",
+          "oklch(52% 0.08 20)",
+          "oklch(64% 0.08 20)",
+          "oklch(74% 0.07 20)",
+          "oklch(84% 0.055 20)",
+          "oklch(91% 0.035 20)",
+          "oklch(96% 0.018 20)"
+        ]
+      },
+      "page-warm": {
+        "role": "neutral",
+        "displayName": "Warm Page Ground",
+        "canonical": "#f8f5f5",
+        "tonalRamp": [
+          "oklch(18% 0.004 20)",
+          "oklch(30% 0.005 20)",
+          "oklch(44% 0.006 20)",
+          "oklch(58% 0.006 20)",
+          "oklch(72% 0.006 20)",
+          "oklch(84% 0.005 20)",
+          "oklch(92% 0.004 20)",
+          "oklch(97% 0.003 20)"
+        ]
+      },
+      "text-primary": {
+        "role": "neutral",
+        "displayName": "Primary Text",
+        "canonical": "#333333",
+        "tonalRamp": [
+          "oklch(16% 0.002 20)",
+          "oklch(24% 0.002 20)",
+          "oklch(34% 0.002 20)",
+          "oklch(46% 0.002 20)",
+          "oklch(58% 0.002 20)",
+          "oklch(72% 0.002 20)",
+          "oklch(86% 0.002 20)",
+          "oklch(96% 0.001 20)"
+        ]
+      },
+      "success-green": {
+        "role": "semantic",
+        "displayName": "Success Green",
+        "canonical": "#2e7d32",
+        "tonalRamp": [
+          "oklch(20% 0.06 145)",
+          "oklch(32% 0.09 145)",
+          "oklch(44% 0.12 145)",
+          "oklch(56% 0.13 145)",
+          "oklch(68% 0.10 145)",
+          "oklch(80% 0.07 145)",
+          "oklch(90% 0.04 145)",
+          "oklch(96% 0.02 145)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "The page title and only major headline."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Upload labels and strong control text."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Short explanatory copy."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Status messages and compact control-adjacent copy."
+      }
+    },
+    "shadows": [
+      {
+        "name": "small-state-shadow",
+        "value": "0 1px 3px rgba(0, 0, 0, 0.06)",
+        "purpose": "Subtle local lift for small surfaces if needed."
+      },
+      {
+        "name": "panel-shadow",
+        "value": "0 4px 20px rgba(0, 0, 0, 0.08)",
+        "purpose": "Mobile or reduced panel elevation."
+      },
+      {
+        "name": "task-surface-shadow",
+        "value": "0 8px 40px rgba(0, 0, 0, 0.10)",
+        "purpose": "The main container shadow."
+      },
+      {
+        "name": "action-hover-shadow",
+        "value": "0 4px 12px rgba(211, 47, 47, 0.3)",
+        "purpose": "Primary button hover feedback only."
+      },
+      {
+        "name": "focus-ring",
+        "value": "0 0 0 3px rgba(211, 47, 47, 0.25)",
+        "purpose": "Keyboard-visible focus on the upload zone."
+      }
+    ],
+    "motion": [
+      {
+        "name": "fast-state",
+        "value": "0.2s ease",
+        "purpose": "Fast feedback for button transform, shadow, and color."
+      },
+      {
+        "name": "normal-state",
+        "value": "0.3s ease",
+        "purpose": "Default transition for upload-zone background and border states."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "small",
+        "value": "480px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Full-width Proofmark Red action button for generating subtitles.",
+      "html": "<button class=\"ds-btn-primary\"><span>Generate Subtitles</span></button>",
+      "css": ".ds-btn-primary { width: 100%; border: 0; border-radius: 8px; background: #d32f2f; color: #ffffff; padding: 14px 28px; font-family: Inter, Segoe UI, system-ui, -apple-system, sans-serif; font-size: 0.95rem; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease; } .ds-btn-primary:hover { background: #b71c1c; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3); } .ds-btn-primary:focus-visible { outline: 2px solid #d32f2f; outline-offset: 2px; } .ds-btn-primary:active { transform: translateY(0); box-shadow: none; } .ds-btn-primary:disabled { background: #c0a0a0; color: #f0e0e0; cursor: not-allowed; transform: none; box-shadow: none; }"
+    },
+    {
+      "name": "Upload Zone",
+      "kind": "input",
+      "refersTo": "upload-zone",
+      "description": "Large dashed drop area that acts as the visible file input.",
+      "html": "<div class=\"ds-upload-zone\" role=\"button\" tabindex=\"0\" aria-label=\"Upload audio or video file\"><svg class=\"ds-upload-icon\" xmlns=\"http://www.w3.org/2000/svg\" width=\"40\" height=\"40\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/><polyline points=\"17 8 12 3 7 8\"/><line x1=\"12\" y1=\"3\" x2=\"12\" y2=\"15\"/></svg><span class=\"ds-upload-label\">Drag & Drop file here or Click to Browse</span><span class=\"ds-file-info\">MP3, MP4, WAV, or MOV</span></div>",
+      "css": ".ds-upload-zone { border: 2px dashed #ffcdd2; border-radius: 12px; padding: 42px 24px; background: #fffafb; color: #d32f2f; cursor: pointer; text-align: center; font-family: Inter, Segoe UI, system-ui, -apple-system, sans-serif; transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease; outline: none; } .ds-upload-zone:hover, .ds-upload-zone:focus-visible { background: #ffebee; border-color: #d32f2f; transform: scale(1.01); } .ds-upload-zone:focus-visible { box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.25); } .ds-upload-icon { display: block; margin: 0 auto 12px; color: #d32f2f; opacity: 0.7; transition: opacity 0.3s ease; } .ds-upload-zone:hover .ds-upload-icon, .ds-upload-zone:focus-visible .ds-upload-icon { opacity: 1; } .ds-upload-label { display: block; color: #d32f2f; font-weight: 600; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-file-info { display: block; margin-top: 8px; font-size: 0.82rem; color: #666666; }"
+    },
+    {
+      "name": "Task Surface",
+      "kind": "card",
+      "refersTo": "main-panel",
+      "description": "Central white workflow panel on a warm page ground.",
+      "html": "<main class=\"ds-task-surface\"><h1>AI Subtitle Generator</h1><p>Upload an MP3 or video to generate perfectly paced SRT subtitles.</p></main>",
+      "css": ".ds-task-surface { background: #ffffff; color: #333333; border-radius: 16px; box-shadow: 0 8px 40px rgba(0, 0, 0, 0.10); padding: 40px; text-align: center; max-width: 600px; font-family: Inter, Segoe UI, system-ui, -apple-system, sans-serif; } .ds-task-surface h1 { color: #d32f2f; font-size: 1.85rem; line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 6px; } .ds-task-surface p { color: #666666; font-size: 0.95rem; line-height: 1.5; margin: 0; }"
+    },
+    {
+      "name": "Status Message",
+      "kind": "custom",
+      "refersTo": "status-message",
+      "description": "Live-region text for processing, success, and error feedback.",
+      "html": "<div class=\"ds-status ds-status-info\" role=\"status\" aria-live=\"polite\">Processing through AI. This may take a minute...</div>",
+      "css": ".ds-status { margin-top: 16px; min-height: 1.4em; font-family: Inter, Segoe UI, system-ui, -apple-system, sans-serif; font-weight: 500; font-size: 0.875rem; line-height: 1.5; text-align: center; transition: color 0.2s ease; } .ds-status-info { color: #666666; } .ds-status-success { color: #2e7d32; } .ds-status-error { color: #d32f2f; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Subtitle Control Room",
+    "overview": "This system should feel like a compact production station: quiet, precise, and ready for repeated use. The page is not a marketing spectacle. It is a focused workspace where a team member can upload media, understand the processing state, and leave with a correctly named SRT file.\n\nThe visual language is professional, reliable, and minimal. It uses a restrained warm surface, a single controlled red for action and emphasis, one sans-serif type family, and simple state changes. The interface should reject generic AI SaaS patterns, toy upload-tool styling, and flashy creator-app energy.",
+    "keyCharacteristics": [
+      "Single-task clarity: the upload flow is the center of the screen.",
+      "Controlled emphasis: red appears where action, focus, or state needs attention.",
+      "Calm reliability: spacing, shadows, and copy should reduce uncertainty.",
+      "Repeatable operation: controls should feel familiar and dependable."
+    ],
+    "rules": [
+      {
+        "name": "The Proofmark Rule",
+        "body": "Red is a mark of action, focus, or state. It is not a decorative brand wash.",
+        "section": "colors"
+      },
+      {
+        "name": "The Quiet Neutral Rule",
+        "body": "Warm neutrals should carry most of the interface. If the page starts looking like an AI landing page, the palette is doing too much.",
+        "section": "colors"
+      },
+      {
+        "name": "The Utility Type Rule",
+        "body": "Use one sans family and earn hierarchy through weight, size, and spacing. Do not introduce display fonts for labels, buttons, or status text.",
+        "section": "typography"
+      },
+      {
+        "name": "The Minimal Lift Rule",
+        "body": "Shadows exist to identify the active workspace and confirm interaction. Never stack nested cards or add decorative glow.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do keep the upload-to-download workflow visually dominant.",
+      "Do use Proofmark Red for primary action, focus, and state, not decoration.",
+      "Do make loading, success, failure, file validation, and download states explicit.",
+      "Do keep controls keyboard-friendly with visible focus states.",
+      "Do use plain copy that tells the user what will happen, what is happening, and what to do next."
+    ],
+    "donts": [
+      "Don't use generic AI SaaS patterns: vague gradient blobs, inflated claims, buzzword-heavy copy, or decorative \"AI magic\" visuals.",
+      "Don't use toy upload-tool styling: cramped spacing, cheap-looking controls, unclear states, or hobby-project polish.",
+      "Don't use flashy creator-app energy: loud colors, trend-driven visuals, excessive motion, or anything that makes the workflow feel less trustworthy.",
+      "Don't add side-stripe borders, gradient text, decorative glassmorphism, or repeated identical card grids.",
+      "Don't introduce modals for validation or processing feedback when inline status messaging can do the job."
+    ]
+  }
+}

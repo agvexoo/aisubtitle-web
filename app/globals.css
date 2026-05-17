@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+/* Design tokens — sourced from DESIGN.md (The Subtitle Control Room).
+   Tailwind v4 exposes every --color-*, --font-*, --radius-* in @theme as
+   utilities (bg-proofmark-red, font-sans, rounded-md, etc.). */
+@theme {
+  --color-proofmark-red: #d32f2f;
+  --color-proofmark-red-deep: #b71c1c;
+  --color-proofmark-red-soft: #ffcdd2;
+  --color-proofmark-red-wash: #fffafb;
+  --color-proofmark-red-hover: #ffebee;
+
+  --color-text-primary: #333333;
+  --color-text-muted: #666666;
+  --color-success-green: #2e7d32;
+
+  --color-page-warm: #f8f5f5;
+  --color-surface: #ffffff;
+
+  --color-disabled-bg: #c0a0a0;
+  --color-disabled-text: #f0e0e0;
+  --color-footer-muted: #bbbbbb;
+
+  --font-sans: var(--font-inter), "Segoe UI", system-ui, -apple-system,
+    sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    background-color: var(--color-page-warm);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-proofmark-red);
+    outline-offset: 2px;
+  }
+}
