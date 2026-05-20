@@ -11,69 +11,21 @@
 // Signature verification REQUIRES the raw request body, which is why we
 // call request.text() not request.json(). Next.js App Router preserves
 // the raw body when you use .text() — no extra config needed.
+//
+// The actual sync logic lives in lib/stripe/subscription-sync.ts so the
+// recovery script (scripts/stripe-sync-user.ts) can reuse it.
 import { NextResponse, type NextRequest } from "next/server";
 import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { db } from "@/lib/db";
-import { planFromLookupKey } from "@/lib/plans";
-import type { SubscriptionStatus, Plan } from "@prisma/client";
+import {
+  applySubscriptionToUser,
+  downgradeSubscription,
+  findUserIdFromCustomer,
+  findUserIdInSubscriptionMetadata,
+} from "@/lib/stripe/subscription-sync";
 
 export const runtime = "nodejs";
-
-function mapStripeStatus(status: Stripe.Subscription.Status): SubscriptionStatus {
-  switch (status) {
-    case "active":
-      return "ACTIVE";
-    case "trialing":
-      return "TRIALING";
-    case "past_due":
-    case "unpaid":
-      return "PAST_DUE";
-    case "canceled":
-    case "incomplete_expired":
-      return "CANCELLED";
-    case "incomplete":
-    case "paused":
-      // Treat as past_due until it resolves; closest semantic match.
-      return "PAST_DUE";
-    default:
-      return "PAST_DUE";
-  }
-}
-
-async function getPlanFromSubscription(sub: Stripe.Subscription): Promise<Plan> {
-  const item = sub.items.data[0];
-  const lookupKey = item?.price.lookup_key;
-  if (lookupKey) return planFromLookupKey(lookupKey);
-
-  // Fallback: fetch the price to read its lookup_key (some webhook payloads
-  // don't include it inline).
-  if (item?.price.id) {
-    const price = await stripe.prices.retrieve(item.price.id);
-    return planFromLookupKey(price.lookup_key);
-  }
-  return "FREE";
-}
-
-function findUserIdInSubscriptionMetadata(
-  sub: Stripe.Subscription,
-): string | null {
-  const meta = sub.metadata;
-  if (meta && typeof meta.app_user_id === "string") return meta.app_user_id;
-  return null;
-}
-
-async function findUserIdFromCustomer(
-  customerId: string | Stripe.Customer | Stripe.DeletedCustomer | null,
-): Promise<string | null> {
-  if (!customerId) return null;
-  const id = typeof customerId === "string" ? customerId : customerId.id;
-  const dbUser = await db.user.findFirst({
-    where: { stripeCustomerId: id },
-    select: { id: true },
-  });
-  return dbUser?.id ?? null;
-}
 
 async function handleCheckoutCompleted(
   session: Stripe.Checkout.Session,
@@ -105,25 +57,6 @@ async function handleSubscriptionUpdated(
   await applySubscriptionToUser(userId, sub);
 }
 
-async function handleSubscriptionDeleted(
-  sub: Stripe.Subscription,
-): Promise<void> {
-  let userId = findUserIdInSubscriptionMetadata(sub);
-  if (!userId) userId = await findUserIdFromCustomer(sub.customer);
-  if (!userId) return;
-
-  await db.$transaction([
-    db.subscription.updateMany({
-      where: { stripeSubscriptionId: sub.id },
-      data: { status: "CANCELLED", cancelAtPeriodEnd: false },
-    }),
-    db.user.update({
-      where: { id: userId },
-      data: { plan: "FREE", stripeSubscriptionId: null },
-    }),
-  ]);
-}
-
 async function handleInvoicePaymentFailed(
   invoice: Stripe.Invoice,
 ): Promise<void> {
@@ -133,10 +66,11 @@ async function handleInvoicePaymentFailed(
     typeof (invoice as unknown as { subscription?: string | null })
       .subscription === "string"
       ? ((invoice as unknown as { subscription?: string }).subscription ?? null)
-      : invoice.lines?.data?.find((l) => {
-          const parent = (l as unknown as { parent?: { type?: string } }).parent;
+      : (invoice.lines?.data?.find((l) => {
+          const parent = (l as unknown as { parent?: { type?: string } })
+            .parent;
           return parent?.type === "subscription_item_details";
-        })?.subscription ?? null;
+        })?.subscription ?? null);
 
   if (!subId || typeof subId !== "string") {
     console.warn("invoice.payment_failed has no subscription reference");
@@ -146,54 +80,6 @@ async function handleInvoicePaymentFailed(
     where: { stripeSubscriptionId: subId },
     data: { status: "PAST_DUE" },
   });
-}
-
-async function applySubscriptionToUser(
-  userId: string,
-  sub: Stripe.Subscription,
-): Promise<void> {
-  const status = mapStripeStatus(sub.status);
-  const plan = await getPlanFromSubscription(sub);
-  const item = sub.items.data[0];
-  if (!item) {
-    console.warn(`subscription ${sub.id} has no items`);
-    return;
-  }
-
-  // Period bounds moved to subscription items in API 2025-03-31+.
-  const periodStart = new Date(item.current_period_start * 1000);
-  const periodEnd = new Date(item.current_period_end * 1000);
-
-  await db.$transaction([
-    db.subscription.upsert({
-      where: { stripeSubscriptionId: sub.id },
-      create: {
-        userId,
-        stripeSubscriptionId: sub.id,
-        stripePriceId: item.price.id,
-        status,
-        currentPeriodStart: periodStart,
-        currentPeriodEnd: periodEnd,
-        cancelAtPeriodEnd: sub.cancel_at_period_end,
-      },
-      update: {
-        stripePriceId: item.price.id,
-        status,
-        currentPeriodStart: periodStart,
-        currentPeriodEnd: periodEnd,
-        cancelAtPeriodEnd: sub.cancel_at_period_end,
-      },
-    }),
-    db.user.update({
-      where: { id: userId },
-      data: {
-        plan: status === "ACTIVE" || status === "TRIALING" ? plan : "FREE",
-        stripeSubscriptionId: sub.id,
-        stripeCustomerId:
-          typeof sub.customer === "string" ? sub.customer : sub.customer.id,
-      },
-    }),
-  ]);
 }
 
 export async function POST(request: NextRequest) {
@@ -236,13 +122,13 @@ export async function POST(request: NextRequest) {
         await handleSubscriptionUpdated(event.data.object);
         break;
       case "customer.subscription.deleted":
-        await handleSubscriptionDeleted(event.data.object);
+        await downgradeSubscription(event.data.object);
         break;
       case "invoice.payment_failed":
         await handleInvoicePaymentFailed(event.data.object);
         break;
       default:
-        // Ignore unhandled events. Logged at INFO so we can audit.
+        // Ignore unhandled events.
         console.log(`stripe webhook ignored: ${event.type}`);
     }
   } catch (err) {
