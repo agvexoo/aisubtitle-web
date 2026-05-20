@@ -32,6 +32,9 @@ const envSchema = z.object({
     ),
   // Webhook secret is validated inside the webhook route, not here — it's
   // only generated when `stripe listen` runs and is dev-only optional.
+
+  // URL of the FastAPI transcription backend at /root/subtitle_api.
+  SUBTITLE_API_URL: z.string().url(),
 });
 
 const parsed = envSchema.safeParse({
@@ -43,6 +46,7 @@ const parsed = envSchema.safeParse({
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
     process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+  SUBTITLE_API_URL: process.env.SUBTITLE_API_URL,
 });
 
 if (!parsed.success) {
