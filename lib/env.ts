@@ -35,6 +35,10 @@ const envSchema = z.object({
 
   // URL of the FastAPI transcription backend at /root/subtitle_api.
   SUBTITLE_API_URL: z.string().url(),
+
+  // PostHog — optional in dev (analytics silently disabled if absent).
+  NEXT_PUBLIC_POSTHOG_KEY: z.string().startsWith("phc_").optional(),
+  NEXT_PUBLIC_POSTHOG_HOST: z.string().url().optional(),
 });
 
 const parsed = envSchema.safeParse({
@@ -47,6 +51,8 @@ const parsed = envSchema.safeParse({
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
     process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
   SUBTITLE_API_URL: process.env.SUBTITLE_API_URL,
+  NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
+  NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
 });
 
 if (!parsed.success) {

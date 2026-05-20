@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { PlanId } from "@/lib/plans";
+import { track } from "@/lib/analytics";
 
 interface CheckoutButtonProps {
   planId: PlanId;
@@ -61,6 +62,7 @@ export function CheckoutButton({
       return;
     }
     setPending(true);
+    track("checkout_started", { plan_id: planId });
     try {
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",

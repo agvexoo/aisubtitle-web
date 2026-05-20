@@ -2,6 +2,7 @@
 
 import { useId, useRef, useState } from "react";
 import { UpgradeModal } from "@/components/upgrade-modal";
+import { track } from "@/lib/analytics";
 
 type Status =
   | { kind: "idle" }
@@ -56,6 +57,11 @@ export function UploadForm() {
       message: "Generating subtitles. This may take a minute…",
     });
 
+    track("upload_started", {
+      file_type: file.type,
+      file_size_bytes: file.size,
+    });
+
     const formData = new FormData();
     formData.append("file", file);
 
@@ -79,6 +85,7 @@ export function UploadForm() {
       const data = body as { error?: string; upgradeRequired?: boolean };
       if (data.upgradeRequired) {
         setUpgradeModal({ open: true, reason: data.error ?? null });
+        track("upgrade_modal_shown", { reason: data.error ?? null });
         setStatus({ kind: "idle" });
       } else {
         setStatus({
@@ -114,6 +121,15 @@ export function UploadForm() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+
+    track("transcription_completed", {
+      file_name: file.name,
+      duration_minutes: 0,
+    });
+    track("export_downloaded", {
+      format: "srt",
+      file_name: downloadName,
+    });
 
     setStatus({
       kind: "success",

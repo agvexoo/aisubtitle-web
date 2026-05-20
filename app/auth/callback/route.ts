@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { syncUser } from "@/lib/auth/sync-user";
+import { trackServer } from "@/lib/analytics-server";
 
 // Handles the redirect from Supabase after an OAuth flow or email confirmation.
 // Exchanges the `code` query param for a session cookie, upserts the local
@@ -27,11 +28,9 @@ export async function GET(request: NextRequest) {
     try {
       await syncUser(data.user);
     } catch (syncError) {
-      // Auth succeeded but the local DB upsert failed. We don't want to
-      // block the user out of their session over this; log and continue.
-      // Phase 6 (Sentry) will pick this up automatically once wired.
       console.error("syncUser failed in /auth/callback", syncError);
     }
+    trackServer(data.user.id, "user_logged_in", { method: "google" });
   }
 
   return NextResponse.redirect(`${origin}${next}`);

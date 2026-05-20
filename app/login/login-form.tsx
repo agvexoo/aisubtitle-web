@@ -6,6 +6,7 @@ import {
   signInWithPassword,
   type LoginState,
 } from "./actions";
+import { track } from "@/lib/analytics";
 
 interface LoginFormProps {
   next?: string;
@@ -20,12 +21,24 @@ export function LoginForm({ next, initialError }: LoginFormProps) {
   const [emailState, emailAction, emailPending] = useActionState<
     LoginState,
     FormData
-  >(signInWithPassword, startingState);
+  >(async (prev, formData) => {
+    const result = await signInWithPassword(prev, formData);
+    if (!result.error) {
+      track("user_logged_in", { method: "email" });
+    }
+    return result;
+  }, startingState);
 
   const [googleState, googleAction, googlePending] = useActionState<
     LoginState,
     FormData
-  >(signInWithGoogle, EMPTY_STATE);
+  >(async (prev, formData) => {
+    const result = await signInWithGoogle(prev, formData);
+    if (!result.error) {
+      track("user_logged_in", { method: "google" });
+    }
+    return result;
+  }, EMPTY_STATE);
 
   const isPending = emailPending || googlePending;
   const error = emailState.error ?? googleState.error;

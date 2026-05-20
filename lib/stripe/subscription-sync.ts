@@ -10,6 +10,7 @@ import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { db } from "@/lib/db";
 import { planFromLookupKey } from "@/lib/plans";
+import { trackServer } from "@/lib/analytics-server";
 import type { SubscriptionStatus, Plan } from "@prisma/client";
 
 export function mapStripeStatus(
@@ -117,6 +118,10 @@ export async function applySubscriptionToUser(
       },
     }),
   ]);
+
+  if (status === "ACTIVE" || status === "TRIALING") {
+    trackServer(userId, "subscription_activated", { plan_id: plan });
+  }
 }
 
 export async function downgradeSubscription(
@@ -136,4 +141,6 @@ export async function downgradeSubscription(
       data: { plan: "FREE", stripeSubscriptionId: null },
     }),
   ]);
+
+  trackServer(userId, "subscription_cancelled", {});
 }

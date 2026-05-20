@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { signUpWithPassword, type SignupState } from "./actions";
+import { track } from "@/lib/analytics";
 
 const INITIAL_STATE: SignupState = {
   error: null,
@@ -10,7 +11,13 @@ const INITIAL_STATE: SignupState = {
 
 export function SignupForm() {
   const [state, action, isPending] = useActionState<SignupState, FormData>(
-    signUpWithPassword,
+    async (prev, formData) => {
+      const result = await signUpWithPassword(prev, formData);
+      if (!result.error) {
+        track("user_signed_up", { method: "email" });
+      }
+      return result;
+    },
     INITIAL_STATE,
   );
 
